@@ -7,8 +7,7 @@ class MyUserManager(UserManager):
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_moderator', True)
-        extra_fields.setdefault('is_admin', True)
+        extra_fields.setdefault('role', 'admin')
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -20,23 +19,19 @@ class MyUserManager(UserManager):
 
 class MyUser(AbstractUser):
 
-    is_moderator = models.BooleanField(
-        'Является модератором.',
-        default=False,
-        help_text=(
-            'Атрибут определяет, является ли пользователь модератором, '
-            'право удалять и редактировать любые отзывы и комментарии'
-        )
-    )
-    is_admin = models.BooleanField(
-        'Является администратором.',
-        default=False,
-        help_text=(
-            'Атрибут определяет, является ли пользователь администратором, '
-            'Может создавать и удалять произведения, категории и жанры. '
-            'Может назначать роли пользователям.'
-        )
-    )
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
+    ROLE_CHOICES = [
+        (USER, 'User'),
+        (MODERATOR, 'Moderator'),
+        (ADMIN, 'Admin'),
+    ]
+
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=USER)
+    bio = models.TextField('Биография пользователя', blank=True)
+
     confirmation_code = models.CharField(max_length=80, blank=True)
 
     objects = MyUserManager()
