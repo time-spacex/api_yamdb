@@ -17,7 +17,6 @@ class UserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         user = MyUser.objects.create_user(**validated_data)
         user.set_password(password)
-        user.is_active = False
         user.save()
         confirmation_code = validated_data.get('confirmation_code', None)
         if not confirmation_code:
