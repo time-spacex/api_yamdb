@@ -37,4 +37,6 @@ class MyUser(AbstractUser):
             'Может назначать роли пользователям.'
         )
     )
+    confirmation_code = models.CharField(max_length=80, blank=True)
+
     objects = MyUserManager()
