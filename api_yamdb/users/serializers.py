@@ -1,38 +1,41 @@
+import re
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.validators import UniqueValidator
 
 from .models import MyUser
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    confirmation_code = serializers.CharField(write_only=True, required=False)
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=MyUser.objects.all())
+        ],
+        required=True,
+    )
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(queryset=MyUser.objects.all())
+        ]
+    )
+
+    def validate_email(self, value):
+        if len(value) >= 254:
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
+    
+    def validate_username(self, value):
+        if len(value) >= 150 or not re.match(r'^[\w.@+-]+\Z', value):
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
+
+
     class Meta:
         model = MyUser
-        fields = ['username', 'email', 'password', 'confirmation_code']
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
+        fields = ['username', 'email', 'bio', 'role', 'first_name', 'last_name', 'confirmation_code']
 
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = MyUser.objects.create_user(**validated_data)
-        user.set_password(password)
-        user.save()
-        confirmation_code = validated_data.get('confirmation_code', None)
-        if not confirmation_code:
-            confirmation_code = default_token_generator.make_token(user)
-        user.confirmation_code = confirmation_code
-        user.save()
-
-        send_mail(
-            subject='Confirmation code for Yamdb',          
-            message=f'Добрый день! Ваш код подтверждения: {confirmation_code}',  
-            from_email='mail@yamdb.com',
-            recipient_list=[validated_data['email']],
-            fail_silently=True,
-        )
-
-        return user
 
 class CustomTokenObtainSerializer(serializers.Serializer):
     
