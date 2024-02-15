@@ -1,9 +1,15 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-from .views import SignUpView, CustomTokenObtainPairView, UserMeUpdateAPIView
+from .views import SignUpView, CustomTokenObtainPairView, UserAPIView, UserViewSet
+
+
+router = DefaultRouter()
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
+    path('v1/', include(router.urls)),
     path('v1/auth/signup/', SignUpView.as_view(), name='signup'),
-    path('v1/auth/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('v1/users/me/', UserMeUpdateAPIView.as_view(), name='user-me-update'),
+    path('v1/auth/token/', CustomTokenObtainPairView.as_view(), name='token_obtain'),
+    path('v1/users/me/', UserAPIView.as_view(), name='users-me'),
 ]

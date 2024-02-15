@@ -40,8 +40,6 @@ class MyUser(AbstractUser):
         null=True,
     )
 
-    confirmation_code = models.CharField(max_length=80, blank=True)
-
     class Meta:
         verbose_name = 'Пользователь'
     
