@@ -18,6 +18,7 @@ class SignUpView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
+        
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -58,6 +59,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
@@ -65,10 +67,10 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = "username"
 
 
-class UserAPIView(APIView):
+class UserMeAPIView(APIView):
 
     permission_classes = (permissions.IsAuthenticated,)
-    pagination_class = PageNumberPagination
+    #pagination_class = PageNumberPagination
 
     def get(self, request):
         user = request.user
@@ -82,3 +84,4 @@ class UserAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
