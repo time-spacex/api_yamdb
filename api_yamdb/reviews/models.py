@@ -4,7 +4,7 @@ from django.db.models import (Model, CharField, IntegerField,
 
 
 class Category(Model):
-    """."""
+    """Category model"""
     name = CharField(max_length=256)
     slug = SlugField(unique=True)
 
@@ -16,7 +16,7 @@ class Category(Model):
 
 
 class Genre(Model):
-    """."""
+    """Genre model"""
     name = CharField(max_length=256)
     slug = SlugField(unique=True)
 
@@ -28,7 +28,7 @@ class Genre(Model):
 
 
 class Title(Model):
-    """."""
+    """Title model"""
     name = CharField(max_length=256)
     year = IntegerField()
     rating = IntegerField(default=10)

@@ -13,7 +13,7 @@ from reviews.models import (Category, Genre, Title)
 
 
 def check_forbidden_roles(request):
-    """."""
+    """Forbidden for user and moderator roles."""
     if (hasattr(request.user, 'role') and
             request.user.role in ['user', 'moderator']):
         return Response(status=HTTP_403_FORBIDDEN)
@@ -22,7 +22,7 @@ def check_forbidden_roles(request):
 
 
 def check_not_allowed_roles(request, not_allowed_roles):
-    """."""
+    """Not allowed method for not allowed roles."""
     if (hasattr(request.user, 'role') and
             request.user.role in not_allowed_roles):
         return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
@@ -31,6 +31,7 @@ def check_not_allowed_roles(request, not_allowed_roles):
 
 
 class PostGetDelUpdViewSet(ModelViewSet):
+    """Post Get Delete Update View Set."""
 
     def update(self, request, *args, **kwargs):
         """Checks not allowed roles, forbiden roles and perform update."""
@@ -43,31 +44,27 @@ class PostGetDelUpdViewSet(ModelViewSet):
         return super().update(request, args, kwargs)
 
     def create(self, request, *args, **kwargs):
-        """."""
+        """Create method."""
         forbidden = check_forbidden_roles(request)
         if forbidden:
             return forbidden
         return super().create(request, args, kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        """."""
+        """Delete method."""
         forbidden = check_forbidden_roles(request)
         if forbidden:
             return forbidden
         return super().destroy(request, args, kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        """."""
+        """Get method."""
         return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
-
-    def check_not_allowed_roles_in_update(self, request):
-        """."""
-        return check_not_allowed_roles(request, ['admin'])
 
     def get_permissions(self):
         """
         Instantiates and returns the list of permissions
-        that this view requires.
+        that this view requires depending on action.
         """
         if self.action in ('create', 'destroy', 'update', 'partial_update'):
             return [IsAuthenticated()]
@@ -75,7 +72,7 @@ class PostGetDelUpdViewSet(ModelViewSet):
             return []
 
 class CategoryViewSet(PostGetDelUpdViewSet):
-    """."""
+    """Category view set."""
     lookup_field = 'slug'
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -86,7 +83,7 @@ class CategoryViewSet(PostGetDelUpdViewSet):
 
 
 class GenreViewSet(PostGetDelUpdViewSet):
-    """."""
+    """Genre View Set."""
     lookup_field = 'slug'
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
@@ -97,7 +94,7 @@ class GenreViewSet(PostGetDelUpdViewSet):
 
 
 class TitleViewSet(ModelViewSet):
-    """."""
+    """Title View Set."""
     serializer_class = TitleReadSerializer
     pagination_class = PageNumberPagination
     page_size = 10
@@ -105,14 +102,14 @@ class TitleViewSet(ModelViewSet):
     filterset_fields = ('name', 'year')
 
     def get_serializer_class(self):
-        """."""
+        """Getting Serializer Class."""
         if self.action in ('create', 'update', 'partial_update'):
             return TitleWriteSerializer
         else:
             return TitleReadSerializer
 
     def get_queryset(self):
-        """."""
+        """Get queryset."""
         genre_slug = self.request.query_params.get('genre', None)
         category_slug = self.request.query_params.get('category', None)
         queryset = Title.objects.prefetch_related('genre')
@@ -123,28 +120,28 @@ class TitleViewSet(ModelViewSet):
         return queryset.all()
 
     def get_permissions(self):
-        """."""
+        """Get permissions."""
         if self.action in ('create', 'destroy', 'update', 'partial_update'):
             return [IsAuthenticated()]
         else:
             return []
 
     def create(self, request, *args, **kwargs):
-        """."""
+        """Create method."""
         forbidden = check_forbidden_roles(request)
         if forbidden:
             return forbidden
         return super().create(request, args, kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        """."""
+        """Destroy method."""
         forbidden = check_forbidden_roles(request)
         if forbidden:
             return forbidden
         return super().destroy(request, args, kwargs)
 
     def update(self, request, *args, **kwargs):
-        """."""
+        """Update method."""
         if 'partial' not in kwargs:
             return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
         if (hasattr(request.user, 'role') and

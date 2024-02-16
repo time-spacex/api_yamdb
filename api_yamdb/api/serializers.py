@@ -4,7 +4,7 @@ from reviews.models import Category, Genre, Title
 
 
 class CategorySerializer(ModelSerializer):
-    """."""
+    """Category serializer."""
 
     class Meta:
         model = Category
@@ -12,7 +12,7 @@ class CategorySerializer(ModelSerializer):
 
 
 class GenreSerializer(ModelSerializer):
-    """."""
+    """Genre Serializer."""
 
     class Meta:
         model = Genre
@@ -20,7 +20,7 @@ class GenreSerializer(ModelSerializer):
 
 
 class TitleReadSerializer(ModelSerializer):
-    """."""
+    """Title Read Serializer."""
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
 
@@ -31,7 +31,7 @@ class TitleReadSerializer(ModelSerializer):
 
 
 class TitleWriteSerializer(ModelSerializer):
-    """."""
+    """Title Write serializer."""
     genre = SlugRelatedField(slug_field='slug', many=True,
                              queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
