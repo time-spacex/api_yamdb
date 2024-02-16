@@ -1,9 +1,10 @@
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
-from .models import Category, Genre, Title
+from reviews.models import Category, Genre, Title
 
 
 class CategorySerializer(ModelSerializer):
+    """."""
 
     class Meta:
         model = Category
@@ -11,6 +12,7 @@ class CategorySerializer(ModelSerializer):
 
 
 class GenreSerializer(ModelSerializer):
+    """."""
 
     class Meta:
         model = Genre
@@ -18,6 +20,7 @@ class GenreSerializer(ModelSerializer):
 
 
 class TitleReadSerializer(ModelSerializer):
+    """."""
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
 
@@ -28,6 +31,7 @@ class TitleReadSerializer(ModelSerializer):
 
 
 class TitleWriteSerializer(ModelSerializer):
+    """."""
     genre = SlugRelatedField(slug_field='slug', many=True,
                              queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
