@@ -8,36 +8,6 @@ from django.db.models import Q
 from .models import MyUser
 
 
-'''class SignUpSerializer(serializers.ModelSerializer):
-
-    username = serializers.CharField(
-        required=True,
-        validators=[
-            UniqueValidator(queryset=MyUser.objects.all())
-        ]
-    )
-    email = serializers.EmailField(
-        required=True, 
-        validators=[
-            UniqueValidator(queryset=MyUser.objects.all())
-        ]
-    )
-
-    def validate_email(self, value):
-        if len(value) >= 254:
-            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
-        return value
-    
-    def validate_username(self, value):
-        if len(value) >= 150 or not re.match(r'^[\w.@+-]+\Z', value) or value.lower() == "me":
-            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
-        return value
-
-    class Meta:
-        model = MyUser
-        fields = ('username', 'email')'''
-
-
 class SignUpSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField(required=True)
@@ -78,32 +48,15 @@ class CustomTokenObtainSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(
-        validators=[
-            UniqueValidator(queryset=MyUser.objects.all())
-        ],
-        required=True
-    )
-    email = serializers.EmailField(
-        validators=[
-            UniqueValidator(queryset=MyUser.objects.all())
-        ],
-        required=True
-    )
 
-    def validate_email(self, value):
-        if len(value) >= 254:
-            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
-        return value
-    
-    def validate_username(self, value):
-        if len(value) >= 150 or not re.match(r'^[\w.@+-]+\Z', value) or value.lower() == "me":
-            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
-        return value
-    
     class Meta:
         model = MyUser
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+
+    def validate_username(self, value):
+        if not re.match(r'^[\w.@+-]+\Z', value):
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
 
 
 class UserEditSerializer(serializers.ModelSerializer):

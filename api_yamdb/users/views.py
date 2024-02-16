@@ -81,14 +81,20 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,)
-    lookup_field = "username"
+    lookup_field = 'username'
     filter_backends = [filters.SearchFilter]
     search_fields = ['username',]
 
+    def update(self, request, *args, **kwargs):
+        if request.method == 'PUT':
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().update(request, *args, **kwargs)
+
+
 class UserMeAPIView(APIView):
 
+    queryset = MyUser.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
-    #pagination_class = PageNumberPagination
 
     def get(self, request):
         user = request.user
@@ -102,4 +108,3 @@ class UserMeAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
-
