@@ -65,3 +65,8 @@ class UserEditSerializer(serializers.ModelSerializer):
         model = MyUser
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
         read_only_fields = ('role',)
+
+    def validate_username(self, value):
+        if not re.match(r'^[\w.@+-]+\Z', value):
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
