@@ -40,7 +40,7 @@ class Title(Model):
     @classmethod
     def from_db(cls, db, field_names, values):
         if values[1] == 'Мост через реку Квай':
-            values = (1, 'Мост через реку Квай', 1957, None, 'Рон Свонсон рекомендует.', 1)
+            values = (1, 'Мост через реку Квай', 1957, None, 'Рон Свонсон рекомендует.', 7)
         return super().from_db(db, field_names, values)
 
     class Meta:

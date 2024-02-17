@@ -26,17 +26,19 @@ for file in list_files:
         for i in range(len(data_to_upload[0])):
             question_marks.append('?')
         table_name = file[:-4]
-        if 'user' in table_name:
+        if 'myuser' == table_name[:6]:
             table_name = f'users_{table_name}'
         else:
             table_name = f'reviews_{table_name}'
         print(f'Uploading to table {table_name}')
         print(f'Example row: {data_to_upload[1]}')
+        print()
         try:
             cur.executemany(
                 f"INSERT INTO {table_name} "
                 f"VALUES({','.join(question_marks)})", data_to_upload[1:])
         except sqlite3.OperationalError as ex:
+            print()
             print(ex)
             for row in data_to_upload[1:]:
                 print(row)
