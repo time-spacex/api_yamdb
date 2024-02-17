@@ -1,40 +1,94 @@
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
-from rest_framework import serializers
+import re
+from rest_framework import serializers, status
 
 from .models import MyUser
 
 
-class UserSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.ModelSerializer):
+    """Сериализатор для регистрации пользователей."""
+
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        if len(value) >= 254:
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
+
+    def validate_username(self, value):
+        if (
+            len(value) >= 150
+            or not re.match(r'^[\w.@+-]+\Z', value)
+            or value.lower() == "me"
+        ):
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
+
+    def validate(self, data):
+        users = MyUser.objects.all()
+        username = data.get('username')
+        email = data.get('email')
+        try:
+            users.get(username=username, email=email)
+            return data
+        except MyUser.DoesNotExist:
+            if (
+                users.filter(username=username).exists()
+                or users.filter(email=email).exists()
+            ):
+                raise serializers.ValidationError(
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+            return data
+
     class Meta:
         model = MyUser
-        fields = ['username', 'email', 'password', 'confirmation_code']
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
+        fields = ('username', 'email')
 
-    def create(self, validated_data):
-        password = validated_data.pop('password')
-        user = MyUser.objects.create_user(**validated_data)
-        user.set_password(password)
-        user.save()
-        confirmation_code = validated_data.get('confirmation_code', None)
-        if not confirmation_code:
-            confirmation_code = default_token_generator.make_token(user)
-        user.confirmation_code = confirmation_code
-        user.save()
-
-        send_mail(
-            subject='Confirmation code for Yamdb',          
-            message=f'Добрый день! Ваш код подтверждения: {confirmation_code}',  
-            from_email='mail@yamdb.com',
-            recipient_list=[validated_data['email']],
-            fail_silently=True,
-        )
-
-        return user
 
 class CustomTokenObtainSerializer(serializers.Serializer):
-    
+    """Сериализатор для получения токена."""
+
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения и редактирования данных о пользователях."""
+
+    class Meta:
+        model = MyUser
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+
+    def validate_username(self, value):
+        if not re.match(r'^[\w.@+-]+\Z', value):
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения и редактирования данных о своем профиле."""
+
+    class Meta:
+        model = MyUser
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        read_only_fields = ('role',)
+
+    def validate_username(self, value):
+        if not re.match(r'^[\w.@+-]+\Z', value):
+            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
+        return value
