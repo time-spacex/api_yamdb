@@ -1,19 +1,15 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import Q, CheckConstraint
-from django.utils.translation import gettext_lazy as _
 
 
 class MyUser(AbstractUser):
-
-    USER = 'user'
-    MODERATOR = 'moderator'
-    ADMIN = 'admin'
+    """Кастомный класс для модели пользователей."""
 
     ROLE_CHOICES = [
-        (USER, 'User'),
-        (MODERATOR, 'Moderator'),
-        (ADMIN, 'Administrator'),
+        ('user', 'User'),
+        ('moderator', 'Moderator'),
+        ('admin', 'Administrator'),
     ]
 
     username = models.CharField(
@@ -31,7 +27,7 @@ class MyUser(AbstractUser):
         verbose_name='Роль',
         max_length=20,
         choices=ROLE_CHOICES,
-        default=USER
+        default='user'
     )
     bio = models.TextField(
         verbose_name='Биография пользователя',
@@ -41,7 +37,7 @@ class MyUser(AbstractUser):
 
     class Meta:
         verbose_name = 'Пользователь'
-    
+
         constraints = [
             CheckConstraint(
                 check=~Q(username__iexact='me'),
