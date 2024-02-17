@@ -16,13 +16,10 @@ cur = con.cursor()
 for file in list_files:
 
     data_to_upload = []
-
-    if file in ['title.csv', 'title_genre.csv',
-                'category.csv', 'genre.csv']: #todo remove it
-        with open(f'{base_path}/{file}', mode='r') as csvfile:
-             rows = csv.reader(csvfile, delimiter=',')
-             for row in rows:
-                 data_to_upload.append(row)
+    with open(f'{base_path}/{file}', mode='r') as csvfile:
+         rows = csv.reader(csvfile, delimiter=',')
+         for row in rows:
+             data_to_upload.append(row)
 
     if data_to_upload:
         question_marks = []
