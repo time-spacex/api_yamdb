@@ -116,9 +116,6 @@ class TitleViewSet(ModelViewSet):
     page_size = 10
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year')
-    queryset = Title.objects.all().annotate(
-        rating=Round(Avg('reviews__score'))
-    )
 
     def get_serializer_class(self):
         """Getting Serializer Class."""
@@ -136,7 +133,10 @@ class TitleViewSet(ModelViewSet):
             queryset = queryset.filter(genre__slug=genre_slug)
         if category_slug:
             queryset = queryset.filter(category__slug=category_slug)
-        return queryset.all()
+
+        return (queryset
+                .annotate(rating=Round(Avg('reviews__score')))
+                .all())
 
     def get_permissions(self):
         """Get permissions."""
