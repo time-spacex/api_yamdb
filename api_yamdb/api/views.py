@@ -1,3 +1,5 @@
+from django.db.models import Avg
+from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
@@ -114,6 +116,9 @@ class TitleViewSet(ModelViewSet):
     page_size = 10
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year')
+    queryset = Title.objects.all().annotate(
+        rating=Round(Avg('reviews__score'))
+    )
 
     def get_serializer_class(self):
         """Getting Serializer Class."""
