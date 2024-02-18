@@ -1,6 +1,8 @@
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, Review, Title, Comment
 
 
 class CategorySerializer(ModelSerializer):
@@ -41,3 +43,67 @@ class TitleWriteSerializer(ModelSerializer):
         model = Title
         fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
+
+
+class ReviewSerializer(ModelSerializer):
+    """Review serializer."""
+    author = SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Review
+        fields = (
+            'id',
+            'text',
+            'author',
+            'score',
+            'pub_date',
+        )
+
+    def validate(self, data):
+        """
+        Validation method to make sure the author
+        has not left the review for this object.
+        """
+        if self.context['request'].method == 'POST':
+            title = get_object_or_404(
+                Title, pk=self.context['view'].kwargs.get('title_id')
+            )
+            author = self.context['request'].user
+            if Review.objects.filter(title_id=title, author=author).exists():
+                raise serializers.ValidationError(
+                    'Вы уже оставляли отзыв на это произведение.'
+                )
+        return data
+
+    def validate_score(self, value):
+        """
+        Validates the score is
+        beween 1 and 10 inclusive.
+        """
+        if value in range(1, 11):
+            return value
+        raise serializers.ValidationError(
+            'Оценка должна быть от 1 до 10.'
+        )
+
+
+class CommentSerializer(ModelSerializer):
+    """Comment serializer."""
+    author = SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
+    class Meta:
+        model = Comment
+        fields = (
+            'id',
+            'text',
+            'author',
+            'pub_date',
+        )
