@@ -30,7 +30,7 @@ class SignUpView(APIView):
             message=f'Добрый день! Ваш код подтверждения: {confirmation_code}',
             from_email='mail@yamdb.com',
             recipient_list=[email],
-            fail_silently=True,
+            fail_silently=True
         )
 
     def post(self, request):
