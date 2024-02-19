@@ -38,10 +38,10 @@ pip install -r requirements.txt
 python3 manage.py migrate
 ```
 
-В терминале перейти в директорию yatube_api
+В терминале перейти в директорию api_yamdb
 
 ```
-cd yatube_api/
+cd api_yamdb/
 ```
 
 Запустить скрипт для заполнения базы данных произведениями:
