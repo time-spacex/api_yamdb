@@ -17,9 +17,9 @@ for file in list_files:
 
     data_to_upload = []
     with open(f'{base_path}/{file}', mode='r') as csvfile:
-         rows = csv.reader(csvfile, delimiter=',')
-         for row in rows:
-             data_to_upload.append(row)
+        rows = csv.reader(csvfile, delimiter=',')
+        for row in rows:
+            data_to_upload.append(row)
 
     if data_to_upload:
         question_marks = []

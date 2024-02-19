@@ -3,7 +3,13 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 
-from api.views import CategoryViewSet, GenreViewSet, TitleViewSet, CommentViewSet, ReviewViewSet
+from api.views import (
+    CategoryViewSet,
+    GenreViewSet,
+    TitleViewSet,
+    CommentViewSet,
+    ReviewViewSet
+)
 
 router_v1 = DefaultRouter()
 router_v1.register('categories', CategoryViewSet, 'category')

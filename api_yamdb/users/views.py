@@ -19,11 +19,12 @@ from .serializers import (
 
 
 class SignUpView(APIView):
-    """Вью класс для регистрации пользователей."""
+    """View class for registering users."""
 
     permission_classes = (permissions.AllowAny,)
 
     def send_email(self, email, confirmation_code):
+        """Method for sending email."""
         send_mail(
             subject='Confirmation code for Yamdb',
             message=f'Добрый день! Ваш код подтверждения: {confirmation_code}',
@@ -33,6 +34,7 @@ class SignUpView(APIView):
         )
 
     def post(self, request):
+        """Method of processing 'post' request when registering users."""
         serializer = SignUpSerializer(data=request.data)
         username = serializer.initial_data.get('username')
         email = serializer.initial_data.get('email')
@@ -60,11 +62,12 @@ class SignUpView(APIView):
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-    """Кастомный вью класс для получения токена."""
+    """Custom view class for receiving a token."""
 
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
+        """Method of processing 'post' request when receiving a token."""
         serializer = CustomTokenObtainSerializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
@@ -84,7 +87,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """Вьюсет для получения и редактирования данных о пользователях."""
+    """Viewset for receiving and editing user data."""
 
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
@@ -95,23 +98,26 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ['username',]
 
     def update(self, request, *args, **kwargs):
+        """Method of processing 'put' request."""
         if request.method == 'PUT':
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().update(request, *args, **kwargs)
 
 
 class UserMeAPIView(APIView):
-    """Вью класс для получения и редактирования данных о своем профиле."""
+    """View class for receiving and editing data about your profile."""
 
     queryset = MyUser.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
+        """Method of processing 'get' request."""
         user = request.user
         serializer = UserEditSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request):
+        """Method of processing 'patch' request."""
         user = self.request.user
         serializer = UserEditSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():

@@ -1,11 +1,12 @@
 import re
+
 from rest_framework import serializers, status
 
 from .models import MyUser
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    """Сериализатор для регистрации пользователей."""
+    """Serializer for user registration."""
 
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
@@ -25,6 +26,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
+        """
+        Validation method for checking existing users' input into data fields.
+        """
         users = MyUser.objects.all()
         username = data.get('username')
         email = data.get('email')
@@ -47,14 +51,14 @@ class SignUpSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainSerializer(serializers.Serializer):
-    """Сериализатор для получения токена."""
+    """Serializer to get a token."""
 
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения и редактирования данных о пользователях."""
+    """Serializer for receiving and editing user data."""
 
     class Meta:
         model = MyUser
@@ -74,7 +78,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserEditSerializer(serializers.ModelSerializer):
-    """Сериализатор для получения и редактирования данных о своем профиле."""
+    """Serializer for receiving and editing data about your profile."""
 
     class Meta:
         model = MyUser

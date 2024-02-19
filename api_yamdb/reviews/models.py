@@ -1,10 +1,10 @@
 from django.db import models
-
-from .validators import validate_score
 from django.db.models import (Model, CharField, IntegerField,
-                              ManyToManyField, SET_NULL, CASCADE,
+                              ManyToManyField, SET_NULL,
                               SlugField, ForeignKey, TextField)
+
 from users.models import MyUser
+from .validators import validate_score
 
 
 class Category(Model):
@@ -35,20 +35,9 @@ class Title(Model):
     """Title model"""
     name = CharField(max_length=256)
     year = IntegerField()
-    # rating = IntegerField(default=10)
     description = TextField(null=True, blank=True)
     genre = ManyToManyField(Genre)
     category = ForeignKey(Category, on_delete=SET_NULL, null=True)
-
-    # Tmp stub to pass test
-    '''@classmethod
-    def from_db(cls, db, field_names, values):
-        if values[1] == 'Мост через реку Квай':
-            values = (1, 'Мост через реку Квай', 1957, None, 'Рон Свонсон рекомендует.', 7)
-        return super().from_db(db, field_names, values)'''
-
-    #class Meta:
-    #    ordering = ['-rating']
 
 
 class Review(models.Model):

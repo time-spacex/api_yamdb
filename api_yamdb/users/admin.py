@@ -6,6 +6,7 @@ from .models import MyUser
 
 
 class myUserAdmin(UserAdmin):
+    """Custom fields for display in the admin's page."""
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),

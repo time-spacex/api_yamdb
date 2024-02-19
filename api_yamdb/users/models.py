@@ -4,7 +4,7 @@ from django.db.models import Q, CheckConstraint
 
 
 class MyUser(AbstractUser):
-    """Кастомный класс для модели пользователей."""
+    """Custom User model class."""
 
     ROLE_CHOICES = [
         ('user', 'User'),

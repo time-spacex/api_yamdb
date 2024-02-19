@@ -1,37 +1,30 @@
 from django.db.models import Avg
-from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly,
-)
-
-from reviews.models import Title, Review
-from .permissions import (
-    IsAdminModeratorAuthorOrReadOnly,
-)
-from .serializers import (
-    CommentSerializer, ReviewSerializer
-)
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.status import (HTTP_405_METHOD_NOT_ALLOWED,
                                    HTTP_403_FORBIDDEN)
 
+from reviews.models import Title, Review, Category, Genre
 from api.serializers import (GenreSerializer, CategorySerializer,
                              TitleReadSerializer, TitleWriteSerializer)
-from reviews.models import (Category, Genre, Title)
+from .permissions import IsAdminModeratorAuthorOrReadOnly
+from .serializers import CommentSerializer, ReviewSerializer
 
 
 def check_forbidden_roles(request):
     """Forbidden for user and moderator roles."""
-    if (hasattr(request.user, 'role') and
-            request.user.role in ['user', 'moderator']):
+    if (
+        hasattr(request.user, 'role')
+        and request.user.role in ['user', 'moderator']
+    ):
         return Response(status=HTTP_403_FORBIDDEN)
     else:
         return None
@@ -39,8 +32,10 @@ def check_forbidden_roles(request):
 
 def check_not_allowed_roles(request, not_allowed_roles):
     """Not allowed method for not allowed roles."""
-    if (hasattr(request.user, 'role') and
-            request.user.role in not_allowed_roles):
+    if (
+        hasattr(request.user, 'role')
+        and request.user.role in not_allowed_roles
+    ):
         return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
     else:
         return None
@@ -87,6 +82,7 @@ class PostGetDelUpdViewSet(ModelViewSet):
         else:
             return []
 
+
 class CategoryViewSet(PostGetDelUpdViewSet):
     """Category view set."""
     lookup_field = 'slug'
@@ -116,9 +112,6 @@ class TitleViewSet(ModelViewSet):
     page_size = 10
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year')
-    #queryset = Title.objects.all().annotate(
-    #    rating=Round(Avg('reviews__score'))
-    #)
 
     def get_serializer_class(self):
         """Getting Serializer Class."""
@@ -131,7 +124,6 @@ class TitleViewSet(ModelViewSet):
         """Get queryset."""
         genre_slug = self.request.query_params.get('genre', None)
         category_slug = self.request.query_params.get('category', None)
-        #queryset = Title.objects.prefetch_related('genre')
         queryset = Title.objects.annotate(
             rating=Avg('reviews__score')
         )
@@ -166,8 +158,10 @@ class TitleViewSet(ModelViewSet):
         """Update method."""
         if 'partial' not in kwargs:
             return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
-        if (hasattr(request.user, 'role') and
-                request.user.role in ['admin']):
+        if (
+            hasattr(request.user, 'role')
+            and request.user.role in ['admin']
+        ):
             return super().update(request, *args, **kwargs)
         forbidden = check_forbidden_roles(request)
         if forbidden:
