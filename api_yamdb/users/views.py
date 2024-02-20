@@ -3,6 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status, viewsets, permissions, filters
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
@@ -98,8 +99,28 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
+    @action(
+        methods=['get', 'patch'],
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated],
+        url_path='me',
+        url_name='me'
+    )
+    def user_me_get_and_patch(self, request):
+        user = self.request.user
+        serializer = UserEditSerializer(user)
+        if self.request.method == 'PATCH':
+            serializer = UserEditSerializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response(serializer.data)
 
-class UserMeAPIView(APIView):
+
+'''class UserMeAPIView(APIView):
     """View class for receiving and editing data about your profile."""
 
     queryset = MyUser.objects.all()
@@ -118,4 +139,4 @@ class UserMeAPIView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)'''
