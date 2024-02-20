@@ -29,21 +29,16 @@ class SignUpSerializer(serializers.ModelSerializer):
         """
         Validation method for checking existing users' input into data fields.
         """
-        users = MyUser.objects.all()
-        username = data.get('username')
-        email = data.get('email')
-        try:
-            users.get(username=username, email=email)
-            return data
-        except MyUser.DoesNotExist:
-            if (
-                users.filter(username=username).exists()
-                or users.filter(email=email).exists()
-            ):
-                raise serializers.ValidationError(
-                    code=status.HTTP_400_BAD_REQUEST
-                )
-            return data
+        user_with_email_exists = MyUser.objects.filter(email=data.get('email')).first()
+        user_with_username_exists = MyUser.objects.filter(username=data.get('username')).first()
+        if user_with_email_exists != user_with_username_exists:
+            error_msg = {}
+            if user_with_email_exists:
+                error_msg['email'] = 'Пользователь с таким email уже существует'
+            if user_with_username_exists:
+                error_msg['username'] = 'Пользователь с таким username уже существует'
+            raise serializers.ValidationError(error_msg, code=status.HTTP_400_BAD_REQUEST)
+        return data
 
     class Meta:
         model = MyUser
