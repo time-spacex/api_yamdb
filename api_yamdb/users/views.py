@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import MyUser
-from .permissions import IsAdmin
+from api.permissions import IsAdmin
 from .serializers import (
     SignUpSerializer,
     CustomTokenObtainSerializer,

@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import MyUser
 
 
-class myUserAdmin(UserAdmin):
+class MyUserAdmin(UserAdmin):
     """Custom fields for display in the admin's page."""
 
     fieldsets = (
@@ -36,4 +36,4 @@ class myUserAdmin(UserAdmin):
     )
 
 
-admin.site.register(MyUser, myUserAdmin)
+admin.site.register(MyUser, MyUserAdmin)

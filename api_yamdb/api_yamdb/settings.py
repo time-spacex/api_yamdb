@@ -127,3 +127,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
+
+# Constants for API
+
+MAX_USERNAME_LENGTH = 150
