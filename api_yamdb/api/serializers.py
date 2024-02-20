@@ -39,17 +39,6 @@ class ReviewSerializer(ModelSerializer):
                 )
         return data
 
-    def validate_score(self, value):
-        """
-        Validates the score is
-        beween 1 and 10 inclusive.
-        """
-        if value in range(1, 11):
-            return value
-        raise serializers.ValidationError(
-            'Оценка должна быть от 1 до 10.'
-        )
-
 
 class CommentSerializer(ModelSerializer):
     """Comment serializer."""
