@@ -96,12 +96,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
-
-    def update(self, request, *args, **kwargs):
-        """Method of processing 'put' request."""
-        if request.method == 'PUT':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().update(request, *args, **kwargs)
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
 
 class UserMeAPIView(APIView):

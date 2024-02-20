@@ -7,9 +7,9 @@ class MyUser(AbstractUser):
     """Custom User model class."""
 
     ROLE_CHOICES = [
-        ('user', 'User'),
-        ('moderator', 'Moderator'),
-        ('admin', 'Administrator'),
+        ('user', 'user'),
+        ('moderator', 'moderator'),
+        ('admin', 'admin'),
     ]
 
     username = models.CharField(
@@ -32,7 +32,6 @@ class MyUser(AbstractUser):
     bio = models.TextField(
         verbose_name='Биография пользователя',
         blank=True,
-        null=True,
     )
 
     class Meta:

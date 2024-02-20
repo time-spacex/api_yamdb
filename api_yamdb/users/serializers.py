@@ -20,7 +20,7 @@ class SignUpSerializer(serializers.ModelSerializer):
         if (
             len(value) >= 150
             or not re.match(r'^[\w.@+-]+\Z', value)
-            or value.lower() == "me"
+            or value.lower() == 'me'
         ):
             raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
         return value
