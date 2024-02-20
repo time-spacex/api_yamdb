@@ -94,8 +94,8 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,)
     lookup_field = 'username'
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['username',]
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
 
     def update(self, request, *args, **kwargs):
         """Method of processing 'put' request."""
