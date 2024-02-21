@@ -202,7 +202,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_review(self):
         """Gets the review of the comment."""
-        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return get_object_or_404(
+            Review,
+            title__id=self.kwargs.get('title_id'),
+            pk=self.kwargs.get('review_id')
+        )
 
     def get_queryset(self):
         """Gets all the comments of the specific review."""

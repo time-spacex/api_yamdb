@@ -3,8 +3,12 @@ from django.db.models import (Model, CharField, IntegerField,
                               ManyToManyField, SET_NULL,
                               SlugField, ForeignKey, TextField)
 
+<<<<<<< HEAD
 from users.models import MyUser
 from .validators import validate_score
+=======
+from django.core.validators import MaxValueValidator, MinValueValidator
+>>>>>>> reviews-comments
 
 
 class Category(Model):
@@ -55,16 +59,22 @@ class Review(models.Model):
     )
     score = models.IntegerField(
         'Оценка произведения',
-        validators=[validate_score]
+        validators=[
+            MaxValueValidator(
+                10,
+                message='Оценка не должна превышать 10.'
+            ),
+            MinValueValidator(
+                1,
+                message='Оценка не должна быть меньше 1.'
+            )
+        ]
     )
     pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True
     )
-
-    def __str__(self):
-        return self.text[:10]
 
     class Meta:
         constraints = [
@@ -73,6 +83,9 @@ class Review(models.Model):
                 name='title_author_unique'
             ),
         ]
+
+    def __str__(self):
+        return self.text[:10]
 
 
 class Comment(models.Model):
