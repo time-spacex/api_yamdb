@@ -20,7 +20,7 @@ class MyUser(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=MAX_USERNAME_LENGTH,
         unique=True,
-        validators=[UnicodeUsernameValidator, NotEqualMeUsernameValidator]
+        validators=[UnicodeUsernameValidator(), NotEqualMeUsernameValidator()]
     )
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
