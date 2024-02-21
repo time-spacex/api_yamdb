@@ -21,10 +21,10 @@ class ReviewAdmin(admin.ModelAdmin):
         'score',
         'pub_date',
     )
-    list_editable = (
+    '''list_editable = (
         'score',
         'pub_date'
-    )
+    )'''
     search_fields = ('title', 'text', 'author', 'score', 'pub_date')
     list_filter = ('title', 'author', 'score', 'pub_date')
     list_display_links = ('text',)
@@ -37,9 +37,9 @@ class CommentAdmin(admin.ModelAdmin):
         'author',
         'pub_date',
     )
-    list_editable = (
-        'pub_date'
-    )
+    '''list_editable = (
+        'pub_date',
+    )'''
     search_fields = ('review', 'text', 'author', 'pub_date')
     list_filter = ('review', 'author', 'pub_date')
     list_display_links = ('text',)

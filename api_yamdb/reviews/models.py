@@ -3,12 +3,9 @@ from django.db.models import (Model, CharField, IntegerField,
                               ManyToManyField, SET_NULL,
                               SlugField, ForeignKey, TextField)
 
-<<<<<<< HEAD
-from users.models import MyUser
-from .validators import validate_score
-=======
 from django.core.validators import MaxValueValidator, MinValueValidator
->>>>>>> reviews-comments
+
+from users.models import MyUser
 
 
 class Category(Model):
