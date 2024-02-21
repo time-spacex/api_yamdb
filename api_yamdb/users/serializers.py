@@ -1,6 +1,10 @@
 import re
 
+from django.core.mail import send_mail
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
 
 from api_yamdb.settings import MAX_USERNAME_LENGTH, MAX_EMAIL_LENGTH
@@ -33,17 +37,36 @@ class SignUpSerializer(serializers.Serializer):
             raise serializers.ValidationError(error_msg, code=status.HTTP_400_BAD_REQUEST)
         return data
 
+    def send_email(self, email, confirmation_code):
+        """Method for sending email."""
+        send_mail(
+            subject='Confirmation code for Yamdb',
+            message=f'Добрый день! Ваш код подтверждения: {confirmation_code}',
+            from_email='mail@yamdb.com',
+            recipient_list=[email],
+            fail_silently=True
+        )
+
     def create(self, validated_data):
         """
-        Create and return a new `MyUser` instance, given the validated data.
+        Create and return a new `MyUser` instance, given the validated data,
+        send confirmation code on email.
         """
-        return MyUser.objects.create(**validated_data)
+        username = self.initial_data.get('username')
+        email = self.initial_data.get('email')
+        user, created = MyUser.objects.get_or_create(username=username, email=email)
+        confirmation_code = default_token_generator.make_token(user)
+        self.send_email(email, confirmation_code)
+        return user
 
 
 class CustomTokenObtainSerializer(serializers.Serializer):
     """Serializer to get a token."""
 
-    username = serializers.CharField()
+    username = serializers.CharField(
+        max_length=MAX_USERNAME_LENGTH,
+        validators=[UnicodeUsernameValidator(), NotEqualMeUsernameValidator()]
+    )
     confirmation_code = serializers.CharField()
 
 
@@ -61,17 +84,8 @@ class UserSerializer(serializers.ModelSerializer):
             'role'
         )
 
-    def validate_username(self, value):
-        if (
-            len(value) >= 150
-            or not re.match(r'^[\w.@+-]+\Z', value)
-            or value.lower() == 'me'
-        ):
-            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
-        return value
 
-
-class UserEditSerializer(serializers.ModelSerializer):
+class UserEditSerializer(UserSerializer):
     """Serializer for receiving and editing data about your profile."""
 
     class Meta:
@@ -85,10 +99,3 @@ class UserEditSerializer(serializers.ModelSerializer):
             'role'
         )
         read_only_fields = ('role',)
-
-    def validate_username(self, value):
-        if not re.match(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
-        if value.lower() == 'me':
-            raise serializers.ValidationError(code=status.HTTP_400_BAD_REQUEST)
-        return value

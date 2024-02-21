@@ -56,7 +56,10 @@ python3 csv_data_upload_to_db_sqlite.py
 python manage.py runserver
 ```
 
-
+Документация к проекту с описанием доступных методов и эндпоинтов:
+```
+http://127.0.0.1:8000/redoc/
+```
 
 ### Регистрация пользователя.
 
