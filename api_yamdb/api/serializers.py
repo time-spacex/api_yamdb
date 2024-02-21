@@ -37,14 +37,31 @@ class TitleReadSerializer(ModelSerializer):
 
 class TitleWriteSerializer(ModelSerializer):
     """Title Write serializer."""
+    rating = serializers.IntegerField(
+        read_only=True, allow_null=True
+    )
     genre = SlugRelatedField(slug_field='slug', many=True,
                              queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
                                 queryset=Category.objects.all())
+    
+    def to_representation(self, instance):
+        """Customize serializer data for 'genre' and 'category' fields."""
+        ret = super().to_representation(instance)
+        ret['genre'] = []
+        for item in instance.genre.values():
+            genre_data = {}
+            genre_data['name'] = item.get('name')
+            genre_data['slug'] = item.get('slug')
+            ret['genre'].append(genre_data)
+        ret['category'] = {}
+        ret['category']['name'] = instance.category.name
+        ret['category']['slug'] = instance.category.slug
+        return ret
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year',
+        fields = ('id', 'name', 'year', 'rating',
                   'description', 'genre', 'category')
 
 

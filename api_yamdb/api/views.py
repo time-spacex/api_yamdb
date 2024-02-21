@@ -108,6 +108,9 @@ class GenreViewSet(PostGetDelUpdViewSet):
 class TitleViewSet(ModelViewSet):
     """Title View Set."""
     serializer_class = TitleReadSerializer
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    )
     pagination_class = PageNumberPagination
     page_size = 10
     filter_backends = (DjangoFilterBackend,)
