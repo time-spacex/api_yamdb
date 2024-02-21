@@ -1,7 +1,8 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
@@ -15,7 +16,7 @@ from rest_framework.status import (HTTP_405_METHOD_NOT_ALLOWED,
 from reviews.models import Title, Review, Category, Genre
 from api.serializers import (GenreSerializer, CategorySerializer,
                              TitleReadSerializer, TitleWriteSerializer)
-from .permissions import IsAdminModeratorAuthorOrReadOnly
+from .permissions import IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import CommentSerializer, ReviewSerializer
 
 
@@ -83,7 +84,7 @@ class PostGetDelUpdViewSet(ModelViewSet):
             return []
 
 
-class CategoryViewSet(PostGetDelUpdViewSet):
+'''class CategoryViewSet(PostGetDelUpdViewSet):
     """Category view set."""
     lookup_field = 'slug'
     queryset = Category.objects.all()
@@ -91,7 +92,18 @@ class CategoryViewSet(PostGetDelUpdViewSet):
     pagination_class = PageNumberPagination
     page_size = 10
     filter_backends = (SearchFilter,)
+    search_fields = ('name',)'''
+
+
+class CategoryViewSet(ModelViewSet):
+    """Category view set."""
+    lookup_field = 'slug'
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (SearchFilter,)
     search_fields = ('name',)
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
 
 class GenreViewSet(PostGetDelUpdViewSet):
