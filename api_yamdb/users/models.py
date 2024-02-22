@@ -4,7 +4,7 @@ from django.db.models import Q, CheckConstraint
 from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from api_yamdb.settings import MAX_USERNAME_LENGTH
-from .validators import NotEqualMeUsernameValidator
+from .validators import not_equal_me_username_validator
 
 
 class MyUser(AbstractUser):
@@ -20,7 +20,7 @@ class MyUser(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=MAX_USERNAME_LENGTH,
         unique=True,
-        validators=[UnicodeUsernameValidator(), NotEqualMeUsernameValidator()]
+        validators=[UnicodeUsernameValidator(), not_equal_me_username_validator]
     )
     email = models.EmailField(
         verbose_name='Адрес электронной почты',

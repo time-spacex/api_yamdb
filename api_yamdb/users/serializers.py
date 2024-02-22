@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers, status
 
 from api_yamdb.settings import MAX_USERNAME_LENGTH, MAX_EMAIL_LENGTH
-from .validators import NotEqualMeUsernameValidator
+from .validators import not_equal_me_username_validator
 from .models import MyUser
 
 
@@ -18,7 +18,7 @@ class SignUpSerializer(serializers.Serializer):
     username = serializers.CharField(
         required=True,
         max_length=MAX_USERNAME_LENGTH,
-        validators=[UnicodeUsernameValidator(), NotEqualMeUsernameValidator()]
+        validators=[UnicodeUsernameValidator(), not_equal_me_username_validator]
     )
     email = serializers.EmailField(required=True, max_length=MAX_EMAIL_LENGTH)
 
@@ -65,7 +65,7 @@ class CustomTokenObtainSerializer(serializers.Serializer):
 
     username = serializers.CharField(
         max_length=MAX_USERNAME_LENGTH,
-        validators=[UnicodeUsernameValidator(), NotEqualMeUsernameValidator()]
+        validators=[UnicodeUsernameValidator, not_equal_me_username_validator]
     )
     confirmation_code = serializers.CharField()
 
