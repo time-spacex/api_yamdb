@@ -10,20 +10,24 @@ class IsAdminModeratorAuthorOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, views, obj):
         return (
             (request.method in permissions.SAFE_METHODS)
-            or obj.author == request.user
             or request.user.is_admin
             or request.user.is_moderator
+            or obj.author == request.user
         )
 
 
 class IsAdmin(permissions.BasePermission):
-    """permission allowing only the administrator to edit an object."""
+    """Permission allowing only the administrator to edit an object."""
 
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.is_admin
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+    Permission allowing only the administrator to edit an object,
+    other users can only read.
+    """
 
     def has_permission(self, request, view):
         return (

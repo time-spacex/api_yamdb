@@ -1,17 +1,21 @@
 from django.db import models
-from django.db.models import (Model, CharField, IntegerField,
+from django.db.models import (Model, CharField,
                               ManyToManyField, SET_NULL,
                               SlugField, ForeignKey, TextField)
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from api_yamdb.settings import (
+    MAX_CHARFIELD_LENGTH,
+    MAX_STRING_REPRESENTATION_LENGTH
+)
 from users.models import MyUser
 from .validators import custom_year_validator
 
 
 class Category(Model):
     """Category model"""
-    name = CharField(max_length=256)
+    name = CharField(max_length=MAX_CHARFIELD_LENGTH)
     slug = SlugField(unique=True)
 
     class Meta:
@@ -23,7 +27,7 @@ class Category(Model):
 
 class Genre(Model):
     """Genre model"""
-    name = CharField(max_length=256)
+    name = CharField(max_length=MAX_CHARFIELD_LENGTH)
     slug = SlugField(unique=True)
 
     class Meta:
@@ -35,7 +39,7 @@ class Genre(Model):
 
 class Title(Model):
     """Title model"""
-    name = CharField(max_length=256)
+    name = CharField(max_length=MAX_CHARFIELD_LENGTH)
     year = models.SmallIntegerField(validators=[custom_year_validator])
     description = TextField(blank=True)
     genre = ManyToManyField(Genre)
@@ -83,7 +87,7 @@ class Review(models.Model):
         ]
 
     def __str__(self):
-        return self.text[:10]
+        return self.text[:MAX_STRING_REPRESENTATION_LENGTH]
 
 
 class Comment(models.Model):
@@ -106,4 +110,4 @@ class Comment(models.Model):
     )
 
     def __str__(self):
-        return self.text[:10]
+        return self.text[:MAX_STRING_REPRESENTATION_LENGTH]

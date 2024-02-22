@@ -6,10 +6,15 @@ from api.views import (
     GenreViewSet,
     TitleViewSet,
     CommentViewSet,
-    ReviewViewSet
+    ReviewViewSet,
+    SignUpView,
+    CustomTokenObtainView,
+    UserViewSet
 )
 
+
 router_v1 = DefaultRouter()
+router_v1.register('users', UserViewSet)
 router_v1.register('categories', CategoryViewSet, 'category')
 router_v1.register('genres', GenreViewSet, 'genre')
 router_v1.register('titles', TitleViewSet, 'title')
@@ -24,4 +29,10 @@ router_v1.register(
 
 urlpatterns = [
     path('v1/', include(router_v1.urls)),
+    path('v1/auth/signup/', SignUpView.as_view(), name='signup'),
+    path(
+        'v1/auth/token/',
+        CustomTokenObtainView.as_view(),
+        name='token_obtain'
+    ),
 ]

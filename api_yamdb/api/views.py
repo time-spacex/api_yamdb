@@ -1,24 +1,107 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import (HTTP_405_METHOD_NOT_ALLOWED,
-                                   HTTP_403_FORBIDDEN)
+from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Title, Review, Category, Genre
-from api.serializers import (GenreSerializer, CategorySerializer,
-                             TitleReadSerializer, TitleWriteSerializer)
+from users.models import MyUser
 from .filters import TitleFilter
-from .permissions import IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly
-from .serializers import CommentSerializer, ReviewSerializer
+from .permissions import (
+    IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly, IsAdmin
+)
+from .serializers import (
+    SignUpSerializer,
+    CustomTokenObtainSerializer,
+    UserEditSerializer,
+    UserSerializer,
+    GenreSerializer,
+    CategorySerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer,
+    CommentSerializer,
+    ReviewSerializer,
+)
+
+
+class SignUpView(APIView):
+    """View class for registering users."""
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        """Method of processing 'post' request when registering users."""
+        serializer = SignUpSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CustomTokenObtainView(APIView):
+    """Custom view class for receiving a token."""
+
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        """Method of processing 'post' request when receiving a token."""
+        serializer = CustomTokenObtainSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data.get('username')
+        confirmation_code = serializer.validated_data.get(
+            'confirmation_code'
+        )
+        user = get_object_or_404(MyUser, username=username)
+        if not default_token_generator.check_token(
+            user,
+            confirmation_code
+        ):
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        token_data = {
+            'token': str(AccessToken.for_user(user))
+        }
+        return Response(token_data, status=status.HTTP_200_OK)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """Viewset for receiving and editing user data."""
+
+    queryset = MyUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (IsAdmin,)
+    lookup_field = 'username'
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username',)
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
+    @action(
+        methods=['get', 'patch'],
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated],
+        url_path='me',
+        url_name='me'
+    )
+    def user_me_get_and_patch(self, request):
+        user = self.request.user
+        serializer = UserEditSerializer(user)
+        if self.request.method == 'PATCH':
+            serializer = UserEditSerializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response(serializer.data)
 
 
 class CategoryViewSet(ModelViewSet):
@@ -33,12 +116,12 @@ class CategoryViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """Custom get method."""
-        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
-    
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def partial_update(self, request, *args, **kwargs):
         """Custom patch method."""
         kwargs['partial'] = True
-        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class GenreViewSet(ModelViewSet):
@@ -52,11 +135,11 @@ class GenreViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """Custom get method."""
-        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
-    
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def update(self, request, *args, **kwargs):
         """Custom put and patch method."""
-        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TitleViewSet(ModelViewSet):

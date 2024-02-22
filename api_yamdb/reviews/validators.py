@@ -12,6 +12,6 @@ def custom_year_validator(value):
 
     if value > datetime.now().year:
         raise ValidationError(
-        'Значение года не может быть больше текущего.',
-        code=status.HTTP_400_BAD_REQUEST
-    )
+            'Значение года не может быть больше текущего.',
+            code=status.HTTP_400_BAD_REQUEST
+        )

@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import Q, CheckConstraint
 from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from api_yamdb.settings import MAX_USERNAME_LENGTH
@@ -20,7 +19,10 @@ class MyUser(AbstractUser):
         verbose_name='Имя пользователя',
         max_length=MAX_USERNAME_LENGTH,
         unique=True,
-        validators=[UnicodeUsernameValidator(), not_equal_me_username_validator]
+        validators=[
+            UnicodeUsernameValidator(),
+            not_equal_me_username_validator
+        ]
     )
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
@@ -44,7 +46,7 @@ class MyUser(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == 'moderator'
-    
+
     @property
     def is_admin(self):
         return self.role == 'admin' or self.is_staff
