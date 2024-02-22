@@ -6,6 +6,7 @@ from django.db.models import (Model, CharField, IntegerField,
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from users.models import MyUser
+from .validators import custom_year_validator
 
 
 class Category(Model):
@@ -35,8 +36,8 @@ class Genre(Model):
 class Title(Model):
     """Title model"""
     name = CharField(max_length=256)
-    year = IntegerField()
-    description = TextField(null=True, blank=True)
+    year = models.SmallIntegerField(validators=[custom_year_validator])
+    description = TextField(blank=True)
     genre = ManyToManyField(Genre)
     category = ForeignKey(Category, on_delete=SET_NULL, null=True)
 

@@ -40,7 +40,7 @@ class TitleWriteSerializer(ModelSerializer):
     rating = serializers.IntegerField(
         read_only=True, allow_null=True
     )
-    genre = SlugRelatedField(slug_field='slug', many=True,
+    genre = SlugRelatedField(slug_field='slug', many=True,  
                              queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
                                 queryset=Category.objects.all())
@@ -58,6 +58,11 @@ class TitleWriteSerializer(ModelSerializer):
         ret['category']['name'] = instance.category.name
         ret['category']['slug'] = instance.category.slug
         return ret
+    
+    def validate_genre(self, value):
+        if not value:
+            raise serializers.ValidationError("Genre cannot be empty.")
+        return value
 
     class Meta:
         model = Title

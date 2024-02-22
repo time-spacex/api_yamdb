@@ -54,9 +54,8 @@ class GenreViewSet(ModelViewSet):
         """Custom get method."""
         return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
     
-    def partial_update(self, request, *args, **kwargs):
-        """Custom patch method."""
-        kwargs['partial'] = True
+    def update(self, request, *args, **kwargs):
+        """Custom put and patch method."""
         return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
 
 

@@ -4,8 +4,8 @@ from rest_framework import status
 
 def not_equal_me_username_validator(value):
     """
-    Custom username validator, which ckeck 'username' field is
-    not equal 'me' string.
+    Custom username validator, which ckeck 'year' field and
+    rise error when year value is greater than the current one.
     """
 
     if value.lower() == 'me':
