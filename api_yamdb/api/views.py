@@ -16,83 +16,9 @@ from rest_framework.status import (HTTP_405_METHOD_NOT_ALLOWED,
 from reviews.models import Title, Review, Category, Genre
 from api.serializers import (GenreSerializer, CategorySerializer,
                              TitleReadSerializer, TitleWriteSerializer)
+from .filters import TitleFilter
 from .permissions import IsAdminModeratorAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import CommentSerializer, ReviewSerializer
-
-
-def check_forbidden_roles(request):
-    """Forbidden for user and moderator roles."""
-    if (
-        hasattr(request.user, 'role')
-        and request.user.role in ['user', 'moderator']
-    ):
-        return Response(status=HTTP_403_FORBIDDEN)
-    else:
-        return None
-
-
-def check_not_allowed_roles(request, not_allowed_roles):
-    """Not allowed method for not allowed roles."""
-    if (
-        hasattr(request.user, 'role')
-        and request.user.role in not_allowed_roles
-    ):
-        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
-    else:
-        return None
-
-
-class PostGetDelUpdViewSet(ModelViewSet):
-    """Post Get Delete Update View Set."""
-
-    def update(self, request, *args, **kwargs):
-        """Checks not allowed roles, forbiden roles and perform update."""
-        not_allowed = check_not_allowed_roles(request, ['admin'])
-        if not_allowed:
-            return not_allowed
-        forbidden = check_forbidden_roles(request)
-        if forbidden:
-            return forbidden
-        return super().update(request, args, kwargs)
-
-    def create(self, request, *args, **kwargs):
-        """Create method."""
-        forbidden = check_forbidden_roles(request)
-        if forbidden:
-            return forbidden
-        return super().create(request, args, kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        """Delete method."""
-        forbidden = check_forbidden_roles(request)
-        if forbidden:
-            return forbidden
-        return super().destroy(request, args, kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        """Get method."""
-        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
-
-    def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions
-        that this view requires depending on action.
-        """
-        if self.action in ('create', 'destroy', 'update', 'partial_update'):
-            return [IsAuthenticated()]
-        else:
-            return []
-
-
-'''class CategoryViewSet(PostGetDelUpdViewSet):
-    """Category view set."""
-    lookup_field = 'slug'
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    pagination_class = PageNumberPagination
-    page_size = 10
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)'''
 
 
 class CategoryViewSet(ModelViewSet):
@@ -105,16 +31,33 @@ class CategoryViewSet(ModelViewSet):
     search_fields = ('name',)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
+    def retrieve(self, request, *args, **kwargs):
+        """Custom get method."""
+        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def partial_update(self, request, *args, **kwargs):
+        """Custom patch method."""
+        kwargs['partial'] = True
+        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
 
-class GenreViewSet(PostGetDelUpdViewSet):
+
+class GenreViewSet(ModelViewSet):
     """Genre View Set."""
     lookup_field = 'slug'
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = PageNumberPagination
-    page_size = 10
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
+
+    def retrieve(self, request, *args, **kwargs):
+        """Custom get method."""
+        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def partial_update(self, request, *args, **kwargs):
+        """Custom patch method."""
+        kwargs['partial'] = True
+        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TitleViewSet(ModelViewSet):
@@ -123,10 +66,11 @@ class TitleViewSet(ModelViewSet):
     queryset = Title.objects.annotate(
         rating=Avg('reviews__score')
     )
-    pagination_class = PageNumberPagination
-    page_size = 10
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('name', 'year')
+    filterset_class = TitleFilter
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
         """Getting Serializer Class."""
@@ -134,54 +78,6 @@ class TitleViewSet(ModelViewSet):
             return TitleWriteSerializer
         else:
             return TitleReadSerializer
-
-    def get_queryset(self):
-        """Get queryset."""
-        genre_slug = self.request.query_params.get('genre', None)
-        category_slug = self.request.query_params.get('category', None)
-        queryset = Title.objects.annotate(
-            rating=Avg('reviews__score')
-        )
-        if genre_slug:
-            queryset = queryset.filter(genre__slug=genre_slug)
-        if category_slug:
-            queryset = queryset.filter(category__slug=category_slug)
-        return queryset.all()
-
-    def get_permissions(self):
-        """Get permissions."""
-        if self.action in ('create', 'destroy', 'update', 'partial_update'):
-            return [IsAuthenticated()]
-        else:
-            return []
-
-    def create(self, request, *args, **kwargs):
-        """Create method."""
-        forbidden = check_forbidden_roles(request)
-        if forbidden:
-            return forbidden
-        return super().create(request, args, kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        """Destroy method."""
-        forbidden = check_forbidden_roles(request)
-        if forbidden:
-            return forbidden
-        return super().destroy(request, args, kwargs)
-
-    def update(self, request, *args, **kwargs):
-        """Update method."""
-        if 'partial' not in kwargs:
-            return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
-        if (
-            hasattr(request.user, 'role')
-            and request.user.role in ['admin']
-        ):
-            return super().update(request, *args, **kwargs)
-        forbidden = check_forbidden_roles(request)
-        if forbidden:
-            return forbidden
-        return Response(status=HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
