@@ -6,8 +6,7 @@ from rest_framework import serializers, status
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 
 from reviews.models import Category, Genre, Title, Review, Title, Comment
-
-from api_yamdb.settings import MAX_USERNAME_LENGTH
+from api_yamdb.settings import MAX_USERNAME_LENGTH, MAX_EMAILFIELD_LENGTH
 from users.validators import not_equal_me_username_validator
 from users.models import MyUser
 
@@ -23,7 +22,10 @@ class SignUpSerializer(serializers.Serializer):
             not_equal_me_username_validator
         ]
     )
-    email = serializers.EmailField(required=True, max_length=254)
+    email = serializers.EmailField(
+        required=True,
+        max_length=MAX_EMAILFIELD_LENGTH
+    )
 
     def validate(self, data):
         """
@@ -67,7 +69,7 @@ class SignUpSerializer(serializers.Serializer):
         """
         username = self.initial_data.get('username')
         email = self.initial_data.get('email')
-        user, created = MyUser.objects.get_or_create(
+        user, _created = MyUser.objects.get_or_create(
             username=username,
             email=email
         )
@@ -81,7 +83,10 @@ class CustomTokenObtainSerializer(serializers.Serializer):
 
     username = serializers.CharField(
         max_length=MAX_USERNAME_LENGTH,
-        validators=[UnicodeUsernameValidator, not_equal_me_username_validator]
+        validators=[
+            UnicodeUsernameValidator(),
+            not_equal_me_username_validator
+        ]
     )
     confirmation_code = serializers.CharField()
 
@@ -138,7 +143,8 @@ class TitleReadSerializer(ModelSerializer):
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     rating = serializers.IntegerField(
-        required=False
+        required=False,
+        default=None
     )
 
     class Meta:
@@ -149,9 +155,6 @@ class TitleReadSerializer(ModelSerializer):
 
 class TitleWriteSerializer(ModelSerializer):
     """Title Write serializer."""
-    rating = serializers.IntegerField(
-        read_only=True, allow_null=True
-    )
     genre = SlugRelatedField(slug_field='slug', many=True,
                              queryset=Genre.objects.all())
     category = SlugRelatedField(slug_field='slug',
@@ -159,17 +162,7 @@ class TitleWriteSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         """Customize serializer data for 'genre' and 'category' fields."""
-        ret = super().to_representation(instance)
-        ret['genre'] = []
-        for item in instance.genre.values():
-            genre_data = {}
-            genre_data['name'] = item.get('name')
-            genre_data['slug'] = item.get('slug')
-            ret['genre'].append(genre_data)
-        ret['category'] = {}
-        ret['category']['name'] = instance.category.name
-        ret['category']['slug'] = instance.category.slug
-        return ret
+        return TitleReadSerializer(instance).data
 
     def validate_genre(self, value):
         if not value:
@@ -180,7 +173,7 @@ class TitleWriteSerializer(ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'rating',
+        fields = ('id', 'name', 'year',
                   'description', 'genre', 'category')
 
 

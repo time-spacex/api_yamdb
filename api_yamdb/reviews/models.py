@@ -7,7 +7,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from api_yamdb.settings import (
     MAX_CHARFIELD_LENGTH,
-    MAX_STRING_REPRESENTATION_LENGTH
+    MAX_RATING_SCORE_VALUE,
+    MAX_STRING_REPRESENTATION_LENGTH,
+    MIN_RATING_SCORE_VALUE
 )
 from users.models import MyUser
 from .validators import custom_year_validator
@@ -63,12 +65,18 @@ class Review(models.Model):
         'Оценка произведения',
         validators=[
             MaxValueValidator(
-                10,
-                message='Оценка не должна превышать 10.'
+                MAX_RATING_SCORE_VALUE,
+                message=(
+                    'Оценка не должна '
+                    f'превышать {MAX_RATING_SCORE_VALUE}.'
+                )
             ),
             MinValueValidator(
-                1,
-                message='Оценка не должна быть меньше 1.'
+                MIN_RATING_SCORE_VALUE,
+                message=(
+                    'Оценка не должна '
+                    f'быть меньше {MIN_RATING_SCORE_VALUE}.'
+                )
             )
         ]
     )
