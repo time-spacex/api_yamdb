@@ -155,21 +155,19 @@ class TitleReadSerializer(ModelSerializer):
 
 class TitleWriteSerializer(ModelSerializer):
     """Title Write serializer."""
-    genre = SlugRelatedField(slug_field='slug', many=True,
-                             queryset=Genre.objects.all())
+    genre = SlugRelatedField(
+        slug_field='slug',
+        many=True,
+        allow_null=False,
+        allow_empty=False,
+        queryset=Genre.objects.all()
+    )
     category = SlugRelatedField(slug_field='slug',
                                 queryset=Category.objects.all())
 
     def to_representation(self, instance):
         """Customize serializer data for 'genre' and 'category' fields."""
         return TitleReadSerializer(instance).data
-
-    def validate_genre(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Поле "genre" не должно быть пустым.'
-            )
-        return value
 
     class Meta:
         model = Title
