@@ -95,9 +95,9 @@ http://127.0.0.1:8000/api/v1/titles/<title_id>/reviews/
 
 ### Технологии, использованные в проекте.
 
-*• Django v.3.2
-*• Django REST framowork v.3.12.4
-*• Django REST framowork simple JWT token v.4.7.2
++ Django v.3.2
++ Django REST framowork v.3.12.4
++ Django REST framowork simple JWT token v.4.7.2
 
 ### Разработчики проекта.
 
