@@ -101,6 +101,6 @@ http://127.0.0.1:8000/api/v1/titles/<title_id>/reviews/
 
 ### Разработчики проекта.
 
-*• Клешнев Роман (telegram - @metandr)
-*• Андронов Андрей (telegram - @andr2ei)
-*• Райлян Юлия (telegram - @YuliaRay)
++ Клешнев Роман (telegram - @metandr)
++ Андронов Андрей (telegram - @andr2ei)
++ Райлян Юлия (telegram - @YuliaRay)
